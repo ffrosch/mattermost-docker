@@ -44,3 +44,27 @@ docker compose -f docker-compose.yml -f docker-compose.without-nginx.yml up -d
 ```
 
 Go to `localhost:8065`.
+
+## Update
+
+Add the original repo as an upstream repo
+
+```shell
+git remote add upstream https://github.com/mattermost/docker.git
+```
+
+The easiest way to synchronise the github repo AND the local copy is using the github cli
+
+```shell
+# use the -force flag if sync is not possible due to conflicts
+gh repo sync ffrosch/mattermost-docker -b main
+```
+
+Alternatively vanilla git can be used
+
+```shell
+git fetch upstream
+git checkout main
+git merge upstream/main
+git push
+```
