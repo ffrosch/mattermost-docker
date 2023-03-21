@@ -6,9 +6,7 @@ It is specifically configured to run with [nginx-docker](https://github.com/ffro
 
 ## Install
 
-Also refer to the [Mattermost Docker deployment guide](https://docs.mattermost.com/install/install-docker.html) for general instructions and gotchas.
-
-To take full advantage of this repo first install and run [nginx-docker](https://github.com/ffrosch/nginx-docker).
+See [Mattermost Docker deployment guide](https://docs.mattermost.com/install/install-docker.html) for general instructions.
 
 Get the code:
 
@@ -41,6 +39,8 @@ For production use change at least these environment variables in `.env`:
 - `LETSENCRYPT_TEST`: set to `false` to use the production API for production SSL certificates
 
 ## Usage with `nginx-proxy`
+
+**Note**: you need to install and run [nginx-docker](https://github.com/ffrosch/nginx-docker) first.
 
 Copy the configuration files to `nginx-proxy`. If you are not on `localhost` give the correct domain name (same you specified in `.env`):
 
