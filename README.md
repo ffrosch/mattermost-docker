@@ -52,7 +52,9 @@ docker cp ./nginx/vhost.d/my.domain.com_location nginx-proxy:/etc/nginx/vhost.d/
 docker cp ./nginx/conf.d/mattermost_proxy.conf nginx-proxy:/etc/nginx/conf.d/mattermost_proxy.conf
 ```
 
-Now run the container:
+### Localhost
+
+Run the container:
 
 ```shell
 docker compose up -d
@@ -63,6 +65,22 @@ It might take a moment until it's up and running. Go to:
 ```shell
 http://localhost  # or your domain if you are running it in production
 ```
+
+### Localhost NGROK
+
+Run **ngrok** as a docker container:
+
+```shell
+docker run --net=host -it -e NGROK_AUTHTOKEN=<your-token> ngrok/ngrok:latest http 80
+```
+
+From the **ngrok** output copy the domain-part of the `Forwarding` address (exclude "https://"). Keep **ngrok** running. Start a new shell, assign the `DOMAIN` variable and run the container:
+
+```shell
+DOMAIN=<ngrok-domain>; docker compose up -d
+```
+
+After a moment you will be able to access your mattermost service with `https` over the **ngrok**-address!
 
 ## Usage for local testing without Nginx
 
