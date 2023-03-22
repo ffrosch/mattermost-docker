@@ -1,12 +1,10 @@
 # Mattermost Docker
 
-A fork of the official Docker deployment solution for Mattermost.
-
-It is specifically configured to run with [nginx-docker](https://github.com/ffrosch/nginx-docker) which will also be refered to as `nginx-proxy`, which is also the name of that project's nginx-container and that project't network to which all proxied containers must connect.
+A fork of the [official Docker deployment](https://docs.mattermost.com/install/install-docker.html) solution for Mattermost which is specifically configured to run with [nginx-docker](https://github.com/ffrosch/nginx-docker) aka `nginx-proxy`.
 
 ## Install
 
-See [Mattermost Docker deployment guide](https://docs.mattermost.com/install/install-docker.html) for general instructions.
+Install and run [nginx-docker](https://github.com/ffrosch/nginx-docker) first.
 
 Get the code:
 
@@ -22,35 +20,44 @@ mkdir -p ./volumes/app/mattermost/{config,data,logs,plugins,client/plugins,bleve
 sudo chown -R 2000:2000 ./volumes/app/mattermost
 ```
 
+### Configuration
+
 Create a new `.env`:
 
 ```shell
 cp env.example .env
 ```
 
-For use in development on a `localhost` no other changes are necessary.
+Copy general configurations to `nginx-proxy`:
 
-For production use change at least these environment variables in `.env`:
+```shell
+docker cp ./nginx/conf.d/mattermost_cache.conf nginx-proxy:/etc/nginx/conf.d/mattermost_cache.conf
+```
 
-- `DOMAIN`
+#### Local development
+
+No other changes are necessary for development on `localhost`.
+
+#### Production
+
+Change at least these environment variables in `.env`:
+
+- `DOMAIN`: default is `localhost`
 - `POSTGRES_USER`
 - `POSTGRES_PASSWORD`
 - `LETSENCRYPT_EMAIL`
 - `LETSENCRYPT_TEST`: set to `false` to use the production API for production SSL certificates
 
-## Usage with `nginx-proxy`
-
-**Note**: you need to install and run [nginx-docker](https://github.com/ffrosch/nginx-docker) first.
-
-Copy the configuration files to `nginx-proxy`. If you are not on `localhost` give the correct domain name (same you specified in `.env`):
+Set your `DOMAIN` to the same value in `.env` and the shell. Copy `location` block specific settings to `nginx-proxy`:
 
 ```shell
+# must match the `DOMAIN` in `.env`
 DOMAIN=localhost
 
-docker cp ./nginx/vhost.d/my.domain.com_location nginx-proxy:/etc/nginx/vhost.d/${DOMAIN}_location
-
-docker cp ./nginx/conf.d/mattermost_proxy.conf nginx-proxy:/etc/nginx/conf.d/mattermost_proxy.conf
+docker cp ./nginx/vhost.d/mattermost_location nginx-proxy:/etc/nginx/vhost.d/${DOMAIN}_location
 ```
+
+## Usage
 
 ### Localhost
 
@@ -63,7 +70,7 @@ docker compose up -d
 It might take a moment until it's up and running. Go to:
 
 ```shell
-http://localhost  # or your domain if you are running it in production
+http://localhost
 ```
 
 ### Localhost NGROK
@@ -74,7 +81,7 @@ Run **ngrok** as a docker container:
 docker run --net=host -it -e NGROK_AUTHTOKEN=<your-token> ngrok/ngrok:latest http 80
 ```
 
-From the **ngrok** output copy the domain-part of the `Forwarding` address (exclude "https://"). Keep **ngrok** running. Start a new shell, assign the `DOMAIN` variable and run the container:
+From the **ngrok** output copy the domain-part of the `Forwarding` address (exclude `https://`). Keep **ngrok** running. Start a new shell, assign the `DOMAIN` variable and run the container:
 
 ```shell
 DOMAIN=<ngrok-domain>; docker compose up -d
@@ -82,13 +89,19 @@ DOMAIN=<ngrok-domain>; docker compose up -d
 
 After a moment you will be able to access your mattermost service with `https` over the **ngrok**-address!
 
-## Usage for local testing without Nginx
+### Localhost Throw-away
+
+Check it out real quick:
 
 ```shell
 docker compose -f docker-compose.mattermost.yml -f docker-compose.without-nginx.yml up -d
 ```
 
-Go to `localhost:8065`.
+Go to:
+
+```shell
+http://localhost:8065
+```
 
 ## Update
 
