@@ -84,10 +84,27 @@ docker run --net=host -it -e NGROK_AUTHTOKEN=<your-token> ngrok/ngrok:latest htt
 From the **ngrok** output copy the domain-part of the `Forwarding` address (exclude `https://`). Keep **ngrok** running. Start a new shell, assign the `DOMAIN` variable and run the container:
 
 ```shell
-DOMAIN=<ngrok-domain>; docker compose up -d
+export DOMAIN=<ngrok-domain>; docker compose up -d
 ```
 
 After a moment you will be able to access your mattermost service with `https` over the **ngrok**-address!
+
+For testing `https` it would be good to connect locally and not via `ngrok`.
+
+```shell
+# Stop normal DNS-Server
+sudo systemctl stop systemd-resolved
+
+# Listen at standard address for normal DNS-Server
+# use Google DNS (8.8.8.8)
+# listen locally on all subdomains of localhost
+# NOTE: DO NOT use the domain "local", it does not work (reserved or something)
+sudo dnsmasq --listen-address 127.0.0.53 --server=8.8.8.8 --no-daemon --address=/*.localhost/127.0.0.1
+
+# Restart normal DNS-Server
+sudo systemctl stop systemd-resolved
+sudo systemctl start systemd-resolved
+```
 
 ### Localhost Throw-away
 
