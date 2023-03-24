@@ -3,6 +3,7 @@
 version: "3.8"
 services:
   postgres:
+    container_name: mattermost-postgres
     image: postgres:${POSTGRES_IMAGE_TAG}
     restart: ${RESTART_POLICY}
     security_opt:
@@ -24,6 +25,7 @@ services:
       - POSTGRES_DB
 
   mattermost:
+    container_name: mattermost
     depends_on:
       - postgres
     image: mattermost/${MATTERMOST_IMAGE}:${MATTERMOST_IMAGE_TAG}
@@ -60,17 +62,16 @@ services:
       - MM_SERVICESETTINGS_SITEURL
 
       # nginx-proxy settings
-      - VIRTUAL_PORT=${VIRTUAL_PORT}
-      - VIRTUAL_HOST=${VIRTUAL_HOST}
-      - LETSENCRYPT_HOST=${LETSENCRYPT_HOST}
-      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
-      - LETSENCRYPT_TEST=${LETSENCRYPT_TEST}
-      - DEBUG=${LETSENCRYPT_DEBUG}
+      - VIRTUAL_PORT
+      - VIRTUAL_HOST
+      - LETSENCRYPT_HOST
+      - LETSENCRYPT_EMAIL
+      - LETSENCRYPT_TEST
     ports:
       - ${CALLS_PORT}:8443/udp
     # nginx-proxy settings
     expose:
-      - EXPOSE_PORT=${EXPOSE_PORT}
+      - "${EXPOSE_PORT}"
 
 networks:
   # make `nginx-proxy`'s network the default

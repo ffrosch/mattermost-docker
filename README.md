@@ -25,7 +25,7 @@ sudo chown -R 2000:2000 ./volumes/app/mattermost
 Create a new `.env`:
 
 ```shell
-cp env.example .env
+cp .env.example .env
 ```
 
 Copy general configurations to `nginx-proxy`:
@@ -42,69 +42,25 @@ No other changes are necessary for development on `localhost`.
 
 Change at least these environment variables in `.env`:
 
-- `DOMAIN`: default is `localhost`
+- `VIRTUAL_HOST`: default is `localhost`
 - `POSTGRES_USER`
 - `POSTGRES_PASSWORD`
-- `LETSENCRYPT_EMAIL`
-- `LETSENCRYPT_TEST`: set to `false` to use the production API for production SSL certificates
+- `LETSENCRYPT_TEST`: default is `true`; set to `false` to use the production API for production SSL certificates
 
-Set your `DOMAIN` to the same value in `.env` and the shell. Copy `location` block specific settings to `nginx-proxy`:
+Copy `location` block specific settings to `nginx-proxy`:
 
 ```shell
-# must match the `DOMAIN` in `.env`
-DOMAIN=localhost
+# must match the `VIRTUAL_HOST` in `.env`
+VIRTUAL_HOST=localhost
 
-docker cp ./nginx/vhost.d/mattermost_location nginx-proxy:/etc/nginx/vhost.d/${DOMAIN}_location
+docker cp ./nginx/vhost.d/mattermost_location nginx-proxy:/etc/nginx/vhost.d/${VIRTUAL_HOST}_location
 ```
 
 ## Usage
 
 ### Localhost
 
-Run the container:
-
-```shell
-docker compose up -d
-```
-
-It might take a moment until it's up and running. Go to:
-
-```shell
-http://localhost
-```
-
-### Localhost NGROK
-
-Run **ngrok** as a docker container:
-
-```shell
-docker run --net=host -it -e NGROK_AUTHTOKEN=<your-token> ngrok/ngrok:latest http 80
-```
-
-From the **ngrok** output copy the domain-part of the `Forwarding` address (exclude `https://`). Keep **ngrok** running. Start a new shell, assign the `DOMAIN` variable and run the container:
-
-```shell
-export DOMAIN=<ngrok-domain>; docker compose up -d
-```
-
-After a moment you will be able to access your mattermost service with `https` over the **ngrok**-address!
-
-For testing `https` it would be good to connect locally and not via `ngrok`.
-
-```shell
-# Stop normal DNS-Server
-sudo systemctl stop systemd-resolved
-
-# Listen at standard address for normal DNS-Server
-# use Google DNS (8.8.8.8)
-# listen locally on all subdomains of localhost
-# NOTE: DO NOT use the domain "local", it does not work (reserved or something)
-sudo dnsmasq --listen-address 127.0.0.53 --server=8.8.8.8 --no-daemon --address=/*.localhost/127.0.0.1
-
-# Restart normal DNS-Server
-sudo systemctl stop systemd-resolved
-sudo systemctl start systemd-resolved
-```
+See instructions at [nginx-proxy](https://github.com/ffrosch/nginx-docker).
 
 ### Localhost Throw-away
 
