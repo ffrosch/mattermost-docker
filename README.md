@@ -99,3 +99,7 @@ git checkout main
 git merge upstream/main
 git push
 ```
+
+## Upgrade Mattermost Version
+
+See [Mattermost Docker | Install a different version of Mattermost](https://docs.mattermost.com/install/install-docker.html#installing-a-different-version-of-mattermost)
